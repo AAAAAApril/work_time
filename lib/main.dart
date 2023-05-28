@@ -82,8 +82,6 @@ class _HostPageState extends State<HostPage> {
           endCheckIn: await element.getCacheByType(WorkTimeType.end),
           startDuration: startDuration,
           endDuration: endDuration,
-          //周六之前可以打卡
-          checkInEnable: element.weekday < DateTime.saturday,
         ),
       );
     }
@@ -183,15 +181,17 @@ class _HostPageState extends State<HostPage> {
                   controller,
                   configurations: configurations,
                   decorations: CustomFlexibleTableDecorations(today),
-                  footerFixedHeight: configurations.infoRowHeight,
-                  footer: const SizedBox.expand(
-                    child: Center(
-                      child: Text(
-                        '单击添加；长按删除',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                  headerFooter: FlexibleHeaderFooter(
+                    fixedFooterHeight: configurations.infoRowHeight,
+                    footer: const SizedBox.expand(
+                      child: Center(
+                        child: Text(
+                          '单击添加；长按删除',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),

@@ -1,3 +1,5 @@
+import 'package:work_time/src/enums.dart';
+
 import 'extensions.dart';
 
 ///数据实体
@@ -8,7 +10,6 @@ class WeekData {
     this.endCheckIn,
     required Duration startDuration,
     required Duration endDuration,
-    required this.checkInEnable,
   })  : _startDuration = startDuration,
         _endDuration = endDuration;
 
@@ -27,8 +28,8 @@ class WeekData {
   ///下班时间
   final Duration _endDuration;
 
-  ///当天是否可打卡
-  final bool checkInEnable;
+  ///当天所属的星期
+  late final WeekDay weekDay = WeekDay.values.fromValue(day.weekday);
 
   ///当天的上班时间
   late final startWorkTime = DateTime(day.year, day.month, day.day).add(_startDuration);
@@ -104,6 +105,5 @@ class WeekData {
         endCheckIn: endCheckIn ?? this.endCheckIn,
         startDuration: _startDuration,
         endDuration: _endDuration,
-        checkInEnable: checkInEnable,
       );
 }
