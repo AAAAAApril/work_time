@@ -35,11 +35,6 @@ class HostPage extends StatefulWidget {
 }
 
 class _HostPageState extends State<HostPage> {
-  ///上班时间
-  final Duration startDuration = const Duration(hours: 09, minutes: 30);
-
-  ///下班时间
-  final Duration endDuration = const Duration(hours: 18, minutes: 00);
 
   ///今天
   final DateTime today = () {
@@ -48,10 +43,10 @@ class _HostPageState extends State<HostPage> {
   }();
 
   ///今天的上班时间
-  late final DateTime todayStartWorkTime = today.add(startDuration);
+  late final DateTime todayStartWorkTime = today.add(WorkTimeType.start.time);
 
   ///今天的下班时间
-  late final DateTime todayEndWorkTime = today.add(endDuration);
+  late final DateTime todayEndWorkTime = today.add(WorkTimeType.end.time);
 
   ///本周
   late final List<DateTime> thisWeek = today.thisWeekDays;
@@ -80,8 +75,6 @@ class _HostPageState extends State<HostPage> {
           element,
           startCheckIn: await element.getCacheByType(WorkTimeType.start),
           endCheckIn: await element.getCacheByType(WorkTimeType.end),
-          startDuration: startDuration,
-          endDuration: endDuration,
         ),
       );
     }

@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 
 enum WorkTimeType {
   //上班
-  start,
+  start(Duration(hours: 09, minutes: 30)),
   //下班
-  end,
+  end(Duration(hours: 18, minutes: 00));
+
+  const WorkTimeType(this.time);
+
+  final Duration time;
 }
 
 enum WeekDay {

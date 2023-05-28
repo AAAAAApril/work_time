@@ -3,6 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:work_time/src/enums.dart';
 
 extension DateTimeExt on DateTime {
+  static final DateFormat ymdFormatter = DateFormat('yyyy-MM-dd');
+  static final DateFormat hmFormatter = DateFormat('HH:mm');
+
   List<DateTime> get thisWeekDays {
     //今天的星期
     final int nowWeekDay = weekday;
@@ -20,24 +23,18 @@ extension DateTimeExt on DateTime {
       else {
         return this;
       }
-    });
+    }, growable: false);
   }
 
-  String get toYMDHMString {
-    return DateFormat('yyyy-MM-dd HH:mm').format(this);
-  }
+  String get toYMDString => ymdFormatter.format(this);
 
-  String get toYMDString {
-    return DateFormat('yyyy-MM-dd').format(this);
-  }
+  String get toHMString => hmFormatter.format(this);
 
-  String get toHMString {
-    return DateFormat('HH:mm').format(this);
-  }
+  String cacheKeyFromType(WorkTimeType type) => '${toYMDString}_${type.name}';
 
   Future<DateTime?> getCacheByType(WorkTimeType type) {
     return SharedPreferences.getInstance()
-        .then<String?>((value) => value.getString('${toYMDString}_${type.name}'))
+        .then<String?>((value) => value.getString(cacheKeyFromType(type)))
         .then<DateTime?>((value) => DateTime.fromMillisecondsSinceEpoch(int.parse(value!)))
         .catchError((_) => null);
   }
@@ -45,7 +42,7 @@ extension DateTimeExt on DateTime {
   Future<bool> saveTimeByType(WorkTimeType type, DateTime time) {
     return SharedPreferences.getInstance().then<bool>((value) {
       return value.setString(
-        '${toYMDString}_${type.name}',
+        cacheKeyFromType(type),
         time.millisecondsSinceEpoch.toString(),
       );
     });
@@ -53,13 +50,7 @@ extension DateTimeExt on DateTime {
 
   Future<bool> removeTimeByType(WorkTimeType type) {
     return SharedPreferences.getInstance().then<bool>((value) {
-      return value.remove('${toYMDString}_${type.name}');
+      return value.remove(cacheKeyFromType(type));
     });
-  }
-}
-
-extension NullableDurationExt on Duration? {
-  String get balanceText {
-    return '-';
   }
 }

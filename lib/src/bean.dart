@@ -8,10 +8,7 @@ class WeekData {
     this.day, {
     this.startCheckIn,
     this.endCheckIn,
-    required Duration startDuration,
-    required Duration endDuration,
-  })  : _startDuration = startDuration,
-        _endDuration = endDuration;
+  });
 
   ///当天
   final DateTime day;
@@ -22,20 +19,14 @@ class WeekData {
   ///实际下班打卡时间
   final DateTime? endCheckIn;
 
-  ///上班时间
-  final Duration _startDuration;
-
-  ///下班时间
-  final Duration _endDuration;
-
   ///当天所属的星期
   late final WeekDay weekDay = WeekDay.values.fromValue(day.weekday);
 
   ///当天的上班时间
-  late final startWorkTime = DateTime(day.year, day.month, day.day).add(_startDuration);
+  late final startWorkTime = DateTime(day.year, day.month, day.day).add(WorkTimeType.start.time);
 
   ///当天的下班时间
-  late final endWorkTime = DateTime(day.year, day.month, day.day).add(_endDuration);
+  late final endWorkTime = DateTime(day.year, day.month, day.day).add(WorkTimeType.end.time);
 
   ///是否在上班之后打卡
   late final bool isAfterStart = () {
@@ -103,7 +94,5 @@ class WeekData {
         day,
         startCheckIn: startCheckIn ?? this.startCheckIn,
         endCheckIn: endCheckIn ?? this.endCheckIn,
-        startDuration: _startDuration,
-        endDuration: _endDuration,
       );
 }
