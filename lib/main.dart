@@ -175,7 +175,7 @@ class _HostPageState extends State<HostPage> {
                   controller,
                   configurations: configurations,
                   decorations: CustomFlexibleTableDecorations(today),
-                  headerFooter: FlexibleHeaderFooter(
+                  additions: FlexibleTableAdditions(
                     fixedFooterHeight: configurations.infoRowHeight,
                     footer: const SizedBox.expand(
                       child: Center(
