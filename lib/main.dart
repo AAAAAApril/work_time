@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'WorkTime',
       theme: ThemeData(
+        useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
       home: const HostPage(),
@@ -95,6 +96,7 @@ class _HostPageState extends State<HostPage> {
     //显示时间选择弹窗
     final TimeOfDay? selectTime = await showTimePicker(
       context: context,
+      initialEntryMode: TimePickerEntryMode.input,
       initialTime: TimeOfDay(
         hour: nowTime.hour,
         minute: nowTime.minute,
