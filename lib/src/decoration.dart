@@ -9,37 +9,24 @@ class CustomFlexibleTableDecorations extends AbsFlexibleTableDecorations<WeekDat
   final DateTime today;
 
   @override
-  Widget? buildBackgroundRowDecoration(
-    FlexibleTableController<WeekData> controller,
-    AbsFlexibleTableConfigurations<WeekData> configurations,
-    int dataIndex,
-    WeekData data,
-  ) {
-    return ColoredBox(
-      color: dataIndex.isOdd ? Colors.grey.shade200 : Colors.grey.shade300,
-      child: const SizedBox.expand(),
-    );
-  }
-
-  @override
-  Widget? buildForegroundRowDecoration(
-    FlexibleTableController<WeekData> controller,
-    AbsFlexibleTableConfigurations<WeekData> configurations,
-    int dataIndex,
-    WeekData data,
-  ) {
-    Widget child = const SizedBox.expand();
-    if (today == data.day) {
-      child = DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border.all(
-            width: 1.5,
-            color: Colors.blue,
+  TableInfoRowDecorationBuilder<WeekData> get infoRowDecorationBuilder =>
+      (controller, configurations, dataIndex, data, child) {
+        return Stack(fit: StackFit.expand, children: [
+          ColoredBox(
+            color: dataIndex.isOdd ? Colors.grey.shade200 : Colors.grey.shade300,
           ),
-        ),
-        child: child,
-      );
-    }
-    return IgnorePointer(child: child);
-  }
+          child,
+          if (today == data.day)
+            IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 1.5,
+                    color: Colors.blue,
+                  ),
+                ),
+              ),
+            ),
+        ]);
+      };
 }

@@ -19,7 +19,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'WorkTime',
       theme: ThemeData(
-        useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
       home: const HostPage(),

@@ -139,8 +139,8 @@ class CheckInColumn extends AbsFlexibleColumn<WeekData> {
     }
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: data.weekDay.checkInEnable ? () => onInfoPressed.call(data, type) : null,
-      onLongPress: data.weekDay.checkInEnable ? () => onInfoLongPressed.call(data, type) : null,
+      onTap: () => onInfoPressed.call(data, type),
+      onLongPress: () => onInfoLongPressed.call(data, type),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: dataIndex.isOdd ? Colors.grey.shade300 : Colors.white54,
