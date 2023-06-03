@@ -35,7 +35,6 @@ class HostPage extends StatefulWidget {
 }
 
 class _HostPageState extends State<HostPage> {
-
   ///今天
   final DateTime today = () {
     final now = DateTime.now();
@@ -52,11 +51,37 @@ class _HostPageState extends State<HostPage> {
   late final List<DateTime> thisWeek = today.thisWeekDays;
 
   late FlexibleTableController<WeekData> controller;
+  late FlexibleTableConfigurations<WeekData> configurations;
 
   @override
   void initState() {
     super.initState();
     controller = FlexibleTableController<WeekData>();
+    final itemWidth = ProportionalWidth(1 / 4);
+    configurations = FlexibleTableConfigurations<WeekData>(
+      rowHeight: const FixedHeight(
+        headerRowHeight: 60,
+        fixedInfoRowHeight: 68,
+      ),
+      pinnedColumns: {
+        WeekColumn(columnWidth: itemWidth),
+        CheckInColumn(
+          todayStartWorkTime.toHMString,
+          columnWidth: itemWidth,
+          type: WorkTimeType.start,
+          onInfoPressed: selectData,
+          onInfoLongPressed: onDeleteData,
+        ),
+        CheckInColumn(
+          todayEndWorkTime.toHMString,
+          columnWidth: itemWidth,
+          type: WorkTimeType.end,
+          onInfoPressed: selectData,
+          onInfoLongPressed: onDeleteData,
+        ),
+        TimeOverflowColumn(columnWidth: itemWidth),
+      },
+    );
     refreshHistory();
   }
 
@@ -135,66 +160,35 @@ class _HostPageState extends State<HostPage> {
         centerTitle: true,
         title: Text('${thisWeek.first.toYMDString} ~ ${thisWeek.last.toYMDString}'),
       ),
-      body: LayoutBuilder(
-        builder: (p0, p1) {
-          final double itemWidth = p1.maxWidth / 4;
-          final FlexibleTableConfigurations<WeekData> configurations = FlexibleTableConfigurations<WeekData>(
-            headerRowHeight: 60,
-            infoRowHeight: 68,
-            pinnedColumns: {
-              WeekColumn(
-                fixedWidth: itemWidth,
-              ),
-              CheckInColumn(
-                todayStartWorkTime.toHMString,
-                fixedWidth: itemWidth,
-                type: WorkTimeType.start,
-                onInfoPressed: selectData,
-                onInfoLongPressed: onDeleteData,
-              ),
-              CheckInColumn(
-                todayEndWorkTime.toHMString,
-                fixedWidth: itemWidth,
-                type: WorkTimeType.end,
-                onInfoPressed: selectData,
-                onInfoLongPressed: onDeleteData,
-              ),
-              TimeOverflowColumn(
-                fixedWidth: itemWidth,
-              ),
-            },
-          );
-          return Column(
-            children: [
-              FlexibleTableHeader<WeekData>(
-                controller,
-                configurations: configurations,
-              ),
-              Expanded(
-                child: FlexibleTableContent<WeekData>(
-                  controller,
-                  configurations: configurations,
-                  decorations: CustomFlexibleTableDecorations(today),
-                  additions: FlexibleTableAdditions(
-                    fixedFooterHeight: configurations.infoRowHeight,
-                    footer: const SizedBox.expand(
-                      child: Center(
-                        child: Text(
-                          '单击添加；长按删除',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+      body: Column(
+        children: [
+          FlexibleTableHeader<WeekData>(
+            controller,
+            configurations: configurations,
+          ),
+          Expanded(
+            child: FlexibleTableContent<WeekData>(
+              controller,
+              configurations: configurations,
+              decorations: CustomFlexibleTableDecorations(today),
+              additions: FlexibleTableAdditions(
+                fixedFooterHeight: configurations.rowHeight.fixedInfoRowHeight,
+                footer: const SizedBox.expand(
+                  child: Center(
+                    child: Text(
+                      '单击添加；长按删除',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ),
               ),
-            ],
-          );
-        },
+            ),
+          ),
+        ],
       ),
     );
   }

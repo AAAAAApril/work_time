@@ -8,17 +8,14 @@ import 'bean.dart';
 ///星期列
 class WeekColumn extends AbsFlexibleColumn<WeekData> {
   const WeekColumn({
-    required this.fixedWidth,
+    required this.columnWidth,
   }) : super('本周');
 
   @override
-  final double fixedWidth;
+  final AbsFlexibleTableColumnWidth columnWidth;
 
   @override
-  Widget buildHeader(
-    FlexibleTableController<WeekData> controller,
-    AbsFlexibleTableConfigurations<WeekData> configurations,
-  ) {
+  Widget buildHeaderCell(TableHeaderRowBuildArguments<WeekData> arguments) {
     return Center(
       child: Text(
         id,
@@ -32,30 +29,25 @@ class WeekColumn extends AbsFlexibleColumn<WeekData> {
   }
 
   @override
-  Widget buildInfo(
-    FlexibleTableController<WeekData> controller,
-    AbsFlexibleTableConfigurations<WeekData> configurations,
-    int dataIndex,
-    WeekData data,
-  ) {
+  Widget buildInfoCell(TableInfoRowBuildArguments<WeekData> arguments) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            data.weekDay.dayName,
+            arguments.data.weekDay.dayName,
             style: TextStyle(
-              color: data.weekDay.checkInEnableStateTextColor,
+              color: arguments.data.weekDay.checkInEnableStateTextColor,
               fontSize: 15,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            data.day.toYMDString,
+            arguments.data.day.toYMDString,
             style: TextStyle(
-              color: data.weekDay.checkInEnableStateTextColor,
+              color: arguments.data.weekDay.checkInEnableStateTextColor,
               fontSize: 14,
             ),
           ),
@@ -69,7 +61,7 @@ class WeekColumn extends AbsFlexibleColumn<WeekData> {
 class CheckInColumn extends AbsFlexibleColumn<WeekData> {
   const CheckInColumn(
     this.title, {
-    required this.fixedWidth,
+    required this.columnWidth,
     required this.type,
     required this.onInfoPressed,
     required this.onInfoLongPressed,
@@ -77,16 +69,13 @@ class CheckInColumn extends AbsFlexibleColumn<WeekData> {
 
   final String title;
   @override
-  final double fixedWidth;
+  final AbsFlexibleTableColumnWidth columnWidth;
   final WorkTimeType type;
   final void Function(WeekData data, WorkTimeType type) onInfoPressed;
   final void Function(WeekData data, WorkTimeType type) onInfoLongPressed;
 
   @override
-  Widget buildHeader(
-    FlexibleTableController<WeekData> controller,
-    AbsFlexibleTableConfigurations<WeekData> configurations,
-  ) {
+  Widget buildHeaderCell(TableHeaderRowBuildArguments<WeekData> arguments) {
     return Center(
       child: Text(
         title,
@@ -100,50 +89,45 @@ class CheckInColumn extends AbsFlexibleColumn<WeekData> {
   }
 
   @override
-  Widget buildInfo(
-    FlexibleTableController<WeekData> controller,
-    AbsFlexibleTableConfigurations<WeekData> configurations,
-    int dataIndex,
-    WeekData data,
-  ) {
+  Widget buildInfoCell(TableInfoRowBuildArguments<WeekData> arguments) {
     final String infoText;
     final String subInfoText;
     final Color infoColor;
     switch (type) {
       case WorkTimeType.start:
-        infoText = data.startCheckInText;
-        if (data.startCheckInOverflow == null) {
+        infoText = arguments.data.startCheckInText;
+        if (arguments.data.startCheckInOverflow == null) {
           subInfoText = '-';
         } else {
-          subInfoText = '${data.startCheckInOverflow!.inMinutes}分钟';
+          subInfoText = '${arguments.data.startCheckInOverflow!.inMinutes}分钟';
         }
-        infoColor = data.startCheckIn == null
+        infoColor = arguments.data.startCheckIn == null
             ? Colors.grey
-            : data.isAfterStart
+            : arguments.data.isAfterStart
                 ? Colors.red
                 : Colors.green;
         break;
       case WorkTimeType.end:
-        infoText = data.endCheckInText;
-        if (data.endCheckInOverflow == null) {
+        infoText = arguments.data.endCheckInText;
+        if (arguments.data.endCheckInOverflow == null) {
           subInfoText = '-';
         } else {
-          subInfoText = '${data.endCheckInOverflow!.inMinutes}分钟';
+          subInfoText = '${arguments.data.endCheckInOverflow!.inMinutes}分钟';
         }
-        infoColor = data.endCheckIn == null
+        infoColor = arguments.data.endCheckIn == null
             ? Colors.grey
-            : data.isBeforeEnd
+            : arguments.data.isBeforeEnd
                 ? Colors.red
                 : Colors.green;
         break;
     }
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => onInfoPressed.call(data, type),
-      onLongPress: () => onInfoLongPressed.call(data, type),
+      onTap: () => onInfoPressed.call(arguments.data, type),
+      onLongPress: () => onInfoLongPressed.call(arguments.data, type),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: dataIndex.isOdd ? Colors.grey.shade300 : Colors.white54,
+          color: arguments.dataIndex.isOdd ? Colors.grey.shade300 : Colors.white54,
           shape: BoxShape.circle,
         ),
         child: SizedBox.expand(
@@ -176,20 +160,17 @@ class CheckInColumn extends AbsFlexibleColumn<WeekData> {
 ///超时 列
 class TimeOverflowColumn extends AbsFlexibleColumn<WeekData> {
   const TimeOverflowColumn({
-    required this.fixedWidth,
+    required this.columnWidth,
   }) : super('超出');
 
   @override
-  final double fixedWidth;
+  final AbsFlexibleTableColumnWidth columnWidth;
 
   @override
-  Widget buildHeader(
-    FlexibleTableController<WeekData> controller,
-    AbsFlexibleTableConfigurations<WeekData> configurations,
-  ) {
+  Widget buildHeaderCell(TableHeaderRowBuildArguments<WeekData> arguments) {
     return Center(
       child: ValueListenableBuilder<List<WeekData>>(
-        valueListenable: controller,
+        valueListenable: arguments.controller,
         builder: (context, value, child) {
           final Duration totalWorkflowTime = value.fold<Duration>(
             Duration.zero,
@@ -209,13 +190,8 @@ class TimeOverflowColumn extends AbsFlexibleColumn<WeekData> {
   }
 
   @override
-  Widget buildInfo(
-    FlexibleTableController<WeekData> controller,
-    AbsFlexibleTableConfigurations<WeekData> configurations,
-    int dataIndex,
-    WeekData data,
-  ) {
-    final Duration? overflowDuration = data.workOverflow;
+  Widget buildInfoCell(TableInfoRowBuildArguments<WeekData> arguments) {
+    final Duration? overflowDuration = arguments.data.workOverflow;
     final String text;
     final Color textColor;
     if (overflowDuration == null) {

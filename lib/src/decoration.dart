@@ -9,14 +9,13 @@ class CustomFlexibleTableDecorations extends AbsFlexibleTableDecorations<WeekDat
   final DateTime today;
 
   @override
-  TableInfoRowDecorationBuilder<WeekData> get infoRowDecorationBuilder =>
-      (controller, configurations, dataIndex, data, child) {
+  TableInfoRowDecorationBuilder<WeekData> get infoRowDecorationBuilder => (arguments, child) {
         return Stack(fit: StackFit.expand, children: [
           ColoredBox(
-            color: dataIndex.isOdd ? Colors.grey.shade200 : Colors.grey.shade300,
+            color: arguments.dataIndex.isOdd ? Colors.grey.shade200 : Colors.grey.shade300,
           ),
           child,
-          if (today == data.day)
+          if (today == arguments.data.day)
             IgnorePointer(
               child: DecoratedBox(
                 decoration: BoxDecoration(
