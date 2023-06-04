@@ -1,5 +1,7 @@
 import 'package:flexible_scrollable_table_view/flexible_scrollable_table_view.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:work_time/src/controller.dart';
 import 'package:work_time/src/enums.dart';
 import 'package:work_time/src/extensions.dart';
 
@@ -7,24 +9,47 @@ import 'bean.dart';
 
 ///星期列
 class WeekColumn extends AbsFlexibleColumn<WeekData> {
-  const WeekColumn({
-    required this.columnWidth,
+  WeekColumn(
+    this.weekOfToday, {
+    required this.showWeek,
+    required this.onHeaderPressed,
   }) : super('本周');
 
+  final Week weekOfToday;
+  final ValueListenable<Week> showWeek;
+  final VoidCallback onHeaderPressed;
+
   @override
-  final AbsFlexibleTableColumnWidth columnWidth;
+  AbsFlexibleTableColumnWidth get columnWidth => ProportionalWidth(1 / 4);
 
   @override
   Widget buildHeaderCell(TableHeaderRowBuildArguments<WeekData> arguments) {
-    return Center(
-      child: Text(
-        id,
-        style: const TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-          fontSize: 18,
-        ),
-      ),
+    return ValueListenableBuilder<Week>(
+      valueListenable: showWeek,
+      builder: (context, value, child) {
+        final bool thisWeek = weekOfToday == showWeek.value;
+        Widget child = SizedBox.expand(
+          child: Center(
+            child: Text(
+              id,
+              style: TextStyle(
+                //正在显示的不是这周，文字使用蓝色，表示可以点击
+                color: thisWeek ? Colors.black : Colors.blue,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          ),
+        );
+        //正在显示的是这周，不需要点击事件
+        if (thisWeek) {
+          return child;
+        }
+        return GestureDetector(
+          onTap: onHeaderPressed,
+          child: child,
+        );
+      },
     );
   }
 
@@ -59,26 +84,27 @@ class WeekColumn extends AbsFlexibleColumn<WeekData> {
 
 ///签到打卡 列
 class CheckInColumn extends AbsFlexibleColumn<WeekData> {
-  const CheckInColumn(
-    this.title, {
-    required this.columnWidth,
-    required this.type,
-    required this.onInfoPressed,
-    required this.onInfoLongPressed,
-  }) : super(title);
+  CheckInColumn(this.type) : super(type.name);
 
-  final String title;
-  @override
-  final AbsFlexibleTableColumnWidth columnWidth;
+  CheckInColumn.start() : this(WorkTimeType.start);
+
+  CheckInColumn.end() : this(WorkTimeType.end);
+
   final WorkTimeType type;
-  final void Function(WeekData data, WorkTimeType type) onInfoPressed;
-  final void Function(WeekData data, WorkTimeType type) onInfoLongPressed;
+
+  @override
+  AbsFlexibleTableColumnWidth get columnWidth => ProportionalWidth(1 / 4);
 
   @override
   Widget buildHeaderCell(TableHeaderRowBuildArguments<WeekData> arguments) {
+    final DateTime today = DateTime.now();
     return Center(
       child: Text(
-        title,
+        DateTime(
+          today.year,
+          today.month,
+          today.day,
+        ).add(type.time).toHMString,
         style: const TextStyle(
           color: Colors.blue,
           fontWeight: FontWeight.bold,
@@ -123,8 +149,8 @@ class CheckInColumn extends AbsFlexibleColumn<WeekData> {
     }
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => onInfoPressed.call(arguments.data, type),
-      onLongPress: () => onInfoLongPressed.call(arguments.data, type),
+      onTap: () => (arguments.controller as RecordTableController).onSelectDate(arguments.data, type),
+      onLongPress: () => (arguments.controller as RecordTableController).onDeleteDate(arguments.data, type),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: arguments.dataIndex.isOdd ? Colors.grey.shade300 : Colors.white54,
@@ -159,12 +185,10 @@ class CheckInColumn extends AbsFlexibleColumn<WeekData> {
 
 ///超时 列
 class TimeOverflowColumn extends AbsFlexibleColumn<WeekData> {
-  const TimeOverflowColumn({
-    required this.columnWidth,
-  }) : super('超出');
+  const TimeOverflowColumn() : super('超出');
 
   @override
-  final AbsFlexibleTableColumnWidth columnWidth;
+  AbsFlexibleTableColumnWidth get columnWidth => ProportionalWidth(1 / 4);
 
   @override
   Widget buildHeaderCell(TableHeaderRowBuildArguments<WeekData> arguments) {

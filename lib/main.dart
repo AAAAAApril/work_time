@@ -1,11 +1,11 @@
 import 'package:flexible_scrollable_table_view/flexible_scrollable_table_view.dart';
 import 'package:flutter/material.dart';
 import 'package:work_time/src/extensions.dart';
+import 'package:work_time/src/record_page.dart';
 
 import 'src/bean.dart';
 import 'src/columns.dart';
 import 'src/decoration.dart';
-import 'src/enums.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +19,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'WorkTime',
       theme: ThemeData(
-        useMaterial3: true,
+        //不使用 Material3
+        useMaterial3: false,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
       home: const HostPage(),
@@ -41,154 +42,125 @@ class _HostPageState extends State<HostPage> {
     return DateTime(now.year, now.month, now.day);
   }();
 
-  ///今天的上班时间
-  late final DateTime todayStartWorkTime = today.add(WorkTimeType.start.time);
+  ///正在显示的周
+  late ValueNotifier<Week> showingWeek;
 
-  ///今天的下班时间
-  late final DateTime todayEndWorkTime = today.add(WorkTimeType.end.time);
-
-  ///本周
-  late final List<DateTime> thisWeek = today.thisWeekDays;
-
-  late FlexibleTableController<WeekData> controller;
   late FlexibleTableConfigurations<WeekData> configurations;
+  late CustomFlexibleTableDecorations decorations;
+  late FlexibleTableAdditions<WeekData> additions;
 
   @override
   void initState() {
     super.initState();
-    controller = FlexibleTableController<WeekData>();
-    final itemWidth = ProportionalWidth(1 / 4);
+    showingWeek = ValueNotifier<Week>(Week(today));
     configurations = FlexibleTableConfigurations<WeekData>(
       rowHeight: const FixedHeight(
         headerRowHeight: 60,
-        fixedInfoRowHeight: 68,
+        fixedInfoRowHeight: 80,
       ),
       pinnedColumns: {
-        WeekColumn(columnWidth: itemWidth),
-        CheckInColumn(
-          todayStartWorkTime.toHMString,
-          columnWidth: itemWidth,
-          type: WorkTimeType.start,
-          onInfoPressed: selectData,
-          onInfoLongPressed: onDeleteData,
+        WeekColumn(
+          Week(today),
+          showWeek: showingWeek,
+          onHeaderPressed: () => showingWeek.value = Week(today),
         ),
-        CheckInColumn(
-          todayEndWorkTime.toHMString,
-          columnWidth: itemWidth,
-          type: WorkTimeType.end,
-          onInfoPressed: selectData,
-          onInfoLongPressed: onDeleteData,
-        ),
-        TimeOverflowColumn(columnWidth: itemWidth),
+        CheckInColumn.start(),
+        CheckInColumn.end(),
+        const TimeOverflowColumn(),
       },
     );
-    refreshHistory();
+    decorations = CustomFlexibleTableDecorations(today);
+    additions = FlexibleTableAdditions(
+      fixedFooterHeight: configurations.rowHeight.fixedInfoRowHeight,
+      footer: const SizedBox.expand(
+        child: Text(
+          '单击添加；长按删除；左右箭头切换星期；点击本周回到当前周',
+          style: TextStyle(
+            color: Colors.blue,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    showingWeek.dispose();
     super.dispose();
-  }
-
-  ///刷新打卡历史记录
-  Future<void> refreshHistory() async {
-    final List<WeekData> data = <WeekData>[];
-    for (var element in thisWeek) {
-      data.add(
-        WeekData(
-          element,
-          startCheckIn: await element.getCacheByType(WorkTimeType.start),
-          endCheckIn: await element.getCacheByType(WorkTimeType.end),
-        ),
-      );
-    }
-    controller.value = data;
-  }
-
-  ///选择日期
-  Future<void> selectData(WeekData data, WorkTimeType type) async {
-    DateTime? nowTime;
-    switch (type) {
-      case WorkTimeType.start:
-        nowTime = data.startCheckIn;
-        break;
-      case WorkTimeType.end:
-        nowTime = data.endCheckIn;
-        break;
-    }
-    nowTime ??= DateTime.now();
-    //显示时间选择弹窗
-    final TimeOfDay? selectTime = await showTimePicker(
-      context: context,
-      initialEntryMode: TimePickerEntryMode.input,
-      initialTime: TimeOfDay(
-        hour: nowTime.hour,
-        minute: nowTime.minute,
-      ),
-    );
-    if (selectTime == null) {
-      return;
-    }
-    final DateTime thatDay = data.day;
-    //存起来
-    thatDay.saveTimeByType(
-      type,
-      DateTime(
-        thatDay.year,
-        thatDay.month,
-        thatDay.day,
-        selectTime.hour,
-        selectTime.minute,
-      ),
-    );
-    //刷新记录
-    refreshHistory();
-  }
-
-  ///删除该数据
-  void onDeleteData(WeekData data, WorkTimeType type) {
-    data.day.removeTimeByType(type).then((value) {
-      refreshHistory();
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('${thisWeek.first.toYMDString} ~ ${thisWeek.last.toYMDString}'),
-      ),
-      body: Column(
-        children: [
-          FlexibleTableHeader<WeekData>(
-            controller,
-            configurations: configurations,
-          ),
-          Expanded(
-            child: FlexibleTableContent<WeekData>(
-              controller,
-              configurations: configurations,
-              decorations: CustomFlexibleTableDecorations(today),
-              additions: FlexibleTableAdditions(
-                fixedFooterHeight: configurations.rowHeight.fixedInfoRowHeight,
-                footer: const SizedBox.expand(
-                  child: Center(
-                    child: Text(
-                      '单击添加；长按删除',
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          //上一周
+          leading: ValueListenableBuilder<Week>(
+            valueListenable: showingWeek,
+            builder: (context, value, child) {
+              //超过5周，则不再显示按钮
+              if (today.difference(value.focusDay).inDays > (DateTime.daysPerWeek * 5)) {
+                return const SizedBox.shrink();
+              }
+              return IconButton(
+                onPressed: () {
+                  showingWeek.value = Week(
+                    showingWeek.value.focusDay.subtract(
+                      const Duration(days: DateTime.daysPerWeek),
                     ),
-                  ),
-                ),
-              ),
+                  );
+                },
+                icon: child!,
+              );
+            },
+            child: const Icon(Icons.arrow_back_ios_rounded),
+          ),
+          actions: [
+            //下一周
+            ValueListenableBuilder<Week>(
+              valueListenable: showingWeek,
+              builder: (context, value, child) {
+                //超过3周，则不再显示按钮
+                if (value.focusDay.difference(today).inDays > (DateTime.daysPerWeek * 3)) {
+                  return const SizedBox.shrink();
+                }
+                return IconButton(
+                  onPressed: () {
+                    showingWeek.value = Week(
+                      showingWeek.value.focusDay.add(
+                        const Duration(days: DateTime.daysPerWeek),
+                      ),
+                    );
+                  },
+                  icon: child!,
+                );
+              },
+              child: const Icon(Icons.arrow_forward_ios_rounded),
+            ),
+          ],
+          title: ValueListenableBuilder<Week>(
+            valueListenable: showingWeek,
+            builder: (context, value, child) => Text(
+              '${value.weekDays.first.toYMDString} ~ ${value.weekDays.last.toYMDString}',
             ),
           ),
-        ],
+        ),
+        body: ScrollConfiguration(
+          behavior: const NoOverscrollScrollBehavior(),
+          child: ValueListenableBuilder<Week>(
+            valueListenable: showingWeek,
+            builder: (context, value, child) => RecordPage(
+              week: value,
+              configurations: configurations,
+              decorations: decorations,
+              additions: additions,
+            ),
+          ),
+        ),
       ),
     );
   }
