@@ -77,10 +77,10 @@ packages:
     dependency: "direct main"
     description:
       name: flexible_scrollable_table_view
-      sha256: "67b2e4673e34b9dbde0c13d7a7b6f713cc62615b8c14a58213452ff4ef4eac97"
+      sha256: e8b74b1ab35b0cc1e011baa145b178eaa157ff0e354db6772ab27e885e999fba
       url: "https://pub.dev"
     source: hosted
-    version: "2.7.0"
+    version: "2.7.1"
   flutter:
     dependency: "direct main"
     description: flutter
