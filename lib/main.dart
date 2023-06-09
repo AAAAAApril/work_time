@@ -1,3 +1,4 @@
+import 'package:april_flutter_screen_adapter/april_flutter_screen_adapter.dart';
 import 'package:flexible_scrollable_table_view/flexible_scrollable_table_view.dart';
 import 'package:flutter/material.dart';
 import 'package:work_time/src/extensions.dart';
@@ -8,7 +9,10 @@ import 'src/columns.dart';
 import 'src/decoration.dart';
 
 void main() {
-  runApp(const MyApp());
+  ScreenAdapter.runApp(
+    const MyApp(),
+    designWidth: 400,
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -24,6 +28,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
       home: const HostPage(),
+      builder: ScreenAdapter.compatBuilder,
     );
   }
 }
@@ -58,7 +63,7 @@ class _HostPageState extends State<HostPage> {
         headerRowHeight: 60,
         fixedInfoRowHeight: 80,
       ),
-      pinnedColumns: {
+      leftPinnedColumns: {
         WeekColumn(
           Week(today),
           showWeek: showingWeek,
