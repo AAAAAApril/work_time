@@ -14,7 +14,7 @@ dependencies:
   intl: ^0.18.1
   shared_preferences: ^2.1.1
   flexible_scrollable_table_view: ^2.8.1
-  april_flutter_screen_adapter: ^1.0.0
+  april_flutter_screen_adapter: ^1.1.0
 
   cupertino_icons: ^1.0.2
 
