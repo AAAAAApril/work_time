@@ -1,8 +1,8 @@
 import 'package:flexible_scrollable_table_view/flexible_scrollable_table_view.dart';
 import 'package:flutter/material.dart';
-
-import 'bean.dart';
-import 'controller.dart';
+import 'package:work_time/src/beans/day.dart';
+import 'package:work_time/src/beans/week.dart';
+import 'package:work_time/src/table/controller.dart';
 
 ///打卡记录界面
 class RecordPage extends StatefulWidget {
@@ -18,13 +18,13 @@ class RecordPage extends StatefulWidget {
   final Week week;
 
   ///配置项
-  final AbsFlexibleTableConfigurations<WeekData> configurations;
+  final AbsFlexibleTableConfigurations<Day> configurations;
 
   ///装饰器
-  final AbsFlexibleTableDecorations<WeekData> decorations;
+  final AbsFlexibleTableDecorations<Day> decorations;
 
   ///附加组件
-  final AbsFlexibleTableAdditions<WeekData> additions;
+  final AbsFlexibleTableAdditions<Day> additions;
 
   @override
   State<RecordPage> createState() => _RecordPageState();
@@ -60,12 +60,12 @@ class _RecordPageState extends State<RecordPage> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        FlexibleTableHeader<WeekData>(
+        FlexibleTableHeader<Day>(
           controller,
           configurations: widget.configurations,
         ),
         Expanded(
-          child: FlexibleTableContent<WeekData>(
+          child: FlexibleTableContent<Day>(
             controller,
             configurations: widget.configurations,
             decorations: widget.decorations,

@@ -1,15 +1,14 @@
 import 'package:flexible_scrollable_table_view/flexible_scrollable_table_view.dart';
 import 'package:flutter/material.dart';
+import 'package:work_time/src/beans/day.dart';
 
-import 'bean.dart';
-
-class CustomFlexibleTableDecorations extends AbsFlexibleTableDecorations<WeekData> {
+class CustomFlexibleTableDecorations extends AbsFlexibleTableDecorations<Day> {
   const CustomFlexibleTableDecorations(this.today);
 
   final DateTime today;
 
   @override
-  TableInfoRowDecorationBuilder<WeekData> get infoRowDecorationBuilder => (arguments, child) {
+  TableInfoRowDecorationBuilder<Day> get infoRowDecorationBuilder => (arguments, child) {
         return Stack(fit: StackFit.expand, children: [
           ColoredBox(
             color: arguments.dataIndex.isOdd ? Colors.grey.shade200 : Colors.grey.shade300,

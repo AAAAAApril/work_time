@@ -1,12 +1,13 @@
 import 'package:april_flutter_screen_adapter/april_flutter_screen_adapter.dart';
 import 'package:flexible_scrollable_table_view/flexible_scrollable_table_view.dart';
 import 'package:flutter/material.dart';
-import 'package:work_time/src/extensions.dart';
-import 'package:work_time/src/record_page.dart';
+import 'package:work_time/src/extensions/date_time_extension.dart';
+import 'package:work_time/src/pages/record_page.dart';
 
-import 'src/bean.dart';
-import 'src/columns.dart';
-import 'src/decoration.dart';
+import 'src/beans/day.dart';
+import 'src/beans/week.dart';
+import 'src/table/columns.dart';
+import 'src/table/decoration.dart';
 
 void main() {
   ScreenAdapter.runApp(
@@ -50,15 +51,15 @@ class _HostPageState extends State<HostPage> {
   ///正在显示的周
   late ValueNotifier<Week> showingWeek;
 
-  late FlexibleTableConfigurations<WeekData> configurations;
+  late FlexibleTableConfigurations<Day> configurations;
   late CustomFlexibleTableDecorations decorations;
-  late FlexibleTableAdditions<WeekData> additions;
+  late FlexibleTableAdditions<Day> additions;
 
   @override
   void initState() {
     super.initState();
     showingWeek = ValueNotifier<Week>(Week(today));
-    configurations = FlexibleTableConfigurations<WeekData>(
+    configurations = FlexibleTableConfigurations<Day>(
       rowHeight: const FixedHeight(
         headerRowHeight: 60,
         fixedInfoRowHeight: 80,

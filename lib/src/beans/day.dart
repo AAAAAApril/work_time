@@ -1,10 +1,10 @@
-import 'package:work_time/src/enums.dart';
+import 'package:work_time/src/extensions/date_time_extension.dart';
 
-import 'extensions.dart';
+import 'enums.dart';
 
-///数据实体
-class WeekData {
-  WeekData(
+///每天 数据结构
+class Day {
+  Day(
     this.day, {
     this.startCheckIn,
     this.endCheckIn,
@@ -86,30 +86,13 @@ class WeekData {
     }
   }();
 
-  WeekData copyWith({
+  Day copyWith({
     DateTime? startCheckIn,
     DateTime? endCheckIn,
   }) =>
-      WeekData(
+      Day(
         day,
         startCheckIn: startCheckIn ?? this.startCheckIn,
         endCheckIn: endCheckIn ?? this.endCheckIn,
       );
-}
-
-class Week {
-  Week(this.focusDay);
-
-  ///焦点日期，与今天的星期相同的那天
-  final DateTime focusDay;
-
-  ///焦点日期所在的那一周
-  late final List<DateTime> weekDays = focusDay.thisWeekDays;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) || other is Week && runtimeType == other.runtimeType && focusDay == other.focusDay;
-
-  @override
-  int get hashCode => focusDay.hashCode;
 }

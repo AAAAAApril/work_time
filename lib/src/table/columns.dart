@@ -1,14 +1,14 @@
 import 'package:flexible_scrollable_table_view/flexible_scrollable_table_view.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:work_time/src/controller.dart';
-import 'package:work_time/src/enums.dart';
-import 'package:work_time/src/extensions.dart';
-
-import 'bean.dart';
+import 'package:work_time/src/beans/day.dart';
+import 'package:work_time/src/beans/enums.dart';
+import 'package:work_time/src/beans/week.dart';
+import 'package:work_time/src/extensions/date_time_extension.dart';
+import 'package:work_time/src/table/controller.dart';
 
 ///星期列
-class WeekColumn extends AbsFlexibleColumn<WeekData> {
+class WeekColumn extends AbsFlexibleColumn<Day> {
   WeekColumn(
     this.weekOfToday, {
     required this.showWeek,
@@ -23,7 +23,7 @@ class WeekColumn extends AbsFlexibleColumn<WeekData> {
   AbsFlexibleTableColumnWidth get columnWidth => ProportionalWidth(1 / 4);
 
   @override
-  Widget buildHeaderCell(TableHeaderRowBuildArguments<WeekData> arguments) {
+  Widget buildHeaderCell(TableHeaderRowBuildArguments<Day> arguments) {
     return ValueListenableBuilder<Week>(
       valueListenable: showWeek,
       builder: (context, value, child) {
@@ -54,7 +54,7 @@ class WeekColumn extends AbsFlexibleColumn<WeekData> {
   }
 
   @override
-  Widget buildInfoCell(TableInfoRowBuildArguments<WeekData> arguments) {
+  Widget buildInfoCell(TableInfoRowBuildArguments<Day> arguments) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -83,7 +83,7 @@ class WeekColumn extends AbsFlexibleColumn<WeekData> {
 }
 
 ///签到打卡 列
-class CheckInColumn extends AbsFlexibleColumn<WeekData> {
+class CheckInColumn extends AbsFlexibleColumn<Day> {
   CheckInColumn(this.type) : super(type.name);
 
   CheckInColumn.start() : this(WorkTimeType.start);
@@ -96,7 +96,7 @@ class CheckInColumn extends AbsFlexibleColumn<WeekData> {
   AbsFlexibleTableColumnWidth get columnWidth => ProportionalWidth(1 / 4);
 
   @override
-  Widget buildHeaderCell(TableHeaderRowBuildArguments<WeekData> arguments) {
+  Widget buildHeaderCell(TableHeaderRowBuildArguments<Day> arguments) {
     final DateTime today = DateTime.now();
     return Center(
       child: Text(
@@ -115,7 +115,7 @@ class CheckInColumn extends AbsFlexibleColumn<WeekData> {
   }
 
   @override
-  Widget buildInfoCell(TableInfoRowBuildArguments<WeekData> arguments) {
+  Widget buildInfoCell(TableInfoRowBuildArguments<Day> arguments) {
     final String infoText;
     final String subInfoText;
     final Color infoColor;
@@ -184,16 +184,16 @@ class CheckInColumn extends AbsFlexibleColumn<WeekData> {
 }
 
 ///超时 列
-class TimeOverflowColumn extends AbsFlexibleColumn<WeekData> {
+class TimeOverflowColumn extends AbsFlexibleColumn<Day> {
   const TimeOverflowColumn() : super('超出');
 
   @override
   AbsFlexibleTableColumnWidth get columnWidth => ProportionalWidth(1 / 4);
 
   @override
-  Widget buildHeaderCell(TableHeaderRowBuildArguments<WeekData> arguments) {
+  Widget buildHeaderCell(TableHeaderRowBuildArguments<Day> arguments) {
     return Center(
-      child: ValueListenableBuilder<List<WeekData>>(
+      child: ValueListenableBuilder<List<Day>>(
         valueListenable: arguments.controller,
         builder: (context, value, child) {
           final Duration totalWorkflowTime = value.fold<Duration>(
@@ -214,7 +214,7 @@ class TimeOverflowColumn extends AbsFlexibleColumn<WeekData> {
   }
 
   @override
-  Widget buildInfoCell(TableInfoRowBuildArguments<WeekData> arguments) {
+  Widget buildInfoCell(TableInfoRowBuildArguments<Day> arguments) {
     final Duration? overflowDuration = arguments.data.workOverflow;
     final String text;
     final Color textColor;

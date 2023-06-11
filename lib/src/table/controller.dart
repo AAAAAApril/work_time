@@ -1,12 +1,13 @@
 import 'package:flexible_scrollable_table_view/flexible_scrollable_table_view.dart';
 import 'package:flutter/material.dart';
-import 'package:work_time/src/extensions.dart';
-
-import 'bean.dart';
-import 'enums.dart';
+import 'package:work_time/src/beans/day.dart';
+import 'package:work_time/src/beans/enums.dart';
+import 'package:work_time/src/beans/week.dart';
+import 'package:work_time/src/repository.dart';
+import 'package:work_time/src/repository/abs_repository.dart';
 
 ///记录表控制器
-class RecordTableController extends FlexibleTableController<WeekData> {
+class RecordTableController extends FlexibleTableController<Day> {
   RecordTableController(
     this.thisWeek, {
     required this.contextGetter,
@@ -14,19 +15,21 @@ class RecordTableController extends FlexibleTableController<WeekData> {
     refresh();
   }
 
+  final AbsRepository repository = Repository.instance;
+
   ///表数据所属周
   final Week thisWeek;
   final ValueGetter<BuildContext> contextGetter;
 
   ///刷新记录
   void refresh() async {
-    final List<WeekData> data = <WeekData>[];
+    final List<Day> data = <Day>[];
     for (var element in thisWeek.weekDays) {
       data.add(
-        WeekData(
+        Day(
           element,
-          startCheckIn: await element.getCacheByType(WorkTimeType.start),
-          endCheckIn: await element.getCacheByType(WorkTimeType.end),
+          startCheckIn: await repository.getCheckTime(element, WorkTimeType.start),
+          endCheckIn: await repository.getCheckTime(element, WorkTimeType.end),
         ),
       );
     }
@@ -34,7 +37,7 @@ class RecordTableController extends FlexibleTableController<WeekData> {
   }
 
   ///选择数据
-  void onSelectDate(WeekData data, WorkTimeType type) async {
+  void onSelectDate(Day data, WorkTimeType type) async {
     DateTime? nowTime;
     switch (type) {
       case WorkTimeType.start:
@@ -59,8 +62,7 @@ class RecordTableController extends FlexibleTableController<WeekData> {
     }
     final DateTime thatDay = data.day;
     //存起来
-    thatDay.saveTimeByType(
-      type,
+    await repository.saveCheckTime(
       DateTime(
         thatDay.year,
         thatDay.month,
@@ -68,14 +70,15 @@ class RecordTableController extends FlexibleTableController<WeekData> {
         selectTime.hour,
         selectTime.minute,
       ),
+      type,
     );
     //刷新记录
     refresh();
   }
 
   ///删除该数据
-  void onDeleteDate(WeekData data, WorkTimeType type) {
-    data.day.removeTimeByType(type).then((value) {
+  void onDeleteDate(Day data, WorkTimeType type) {
+    repository.removeCheckTime(data.day, type).then((value) {
       refresh();
     });
   }
