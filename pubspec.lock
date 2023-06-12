@@ -5,10 +5,10 @@ packages:
     dependency: "direct main"
     description:
       name: april_flutter_screen_adapter
-      sha256: "5907c732d111d9307cbebd15861f078be1116304d24822def03768a0848c8a3c"
+      sha256: f3e1efe1059413849ff4250047baa91ee6cd6b5f173616e7863a2269705f92ff
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "1.1.1"
   async:
     dependency: transitive
     description:
