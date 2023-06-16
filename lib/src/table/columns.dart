@@ -1,3 +1,4 @@
+import 'package:extended_value_notifier/extended_value_notifier.dart';
 import 'package:flexible_scrollable_table_view/flexible_scrollable_table_view.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -24,11 +25,11 @@ class WeekColumn extends AbsFlexibleColumn<Day> {
 
   @override
   Widget buildHeaderCell(TableHeaderRowBuildArguments<Day> arguments) {
-    return ValueListenableBuilder<Week>(
-      valueListenable: showWeek,
-      builder: (context, value, child) {
-        final bool thisWeek = weekOfToday == showWeek.value;
-        Widget child = SizedBox.expand(
+    return TransformableListenableBuilder<Week, bool>(
+      source: showWeek,
+      transformer: (sourceValue) => weekOfToday == sourceValue,
+      builder: (context, thisWeek, child) {
+        final Widget child = SizedBox.expand(
           child: Center(
             child: Text(
               id,
@@ -193,22 +194,20 @@ class TimeOverflowColumn extends AbsFlexibleColumn<Day> {
   @override
   Widget buildHeaderCell(TableHeaderRowBuildArguments<Day> arguments) {
     return Center(
-      child: ValueListenableBuilder<List<Day>>(
-        valueListenable: arguments.controller,
-        builder: (context, value, child) {
-          final Duration totalWorkflowTime = value.fold<Duration>(
-            Duration.zero,
-            (previousValue, element) => previousValue + (element.workOverflow ?? Duration.zero),
-          );
-          return Text(
-            '${totalWorkflowTime.inMinutes}分钟',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: totalWorkflowTime.isNegative ? Colors.red : Colors.green,
-            ),
-          );
-        },
+      child: TransformableListenableBuilder<List<Day>, Duration>(
+        source: arguments.controller,
+        transformer: (sourceValue) => sourceValue.fold<Duration>(
+          Duration.zero,
+          (previousValue, element) => previousValue + (element.workOverflow ?? Duration.zero),
+        ),
+        builder: (context, totalWorkflowTime, child) => Text(
+          '${totalWorkflowTime.inMinutes}分钟',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: totalWorkflowTime.isNegative ? Colors.red : Colors.green,
+          ),
+        ),
       ),
     );
   }

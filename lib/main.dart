@@ -1,4 +1,5 @@
 import 'package:april_flutter_screen_adapter/april_flutter_screen_adapter.dart';
+import 'package:extended_value_notifier/extended_value_notifier.dart';
 import 'package:flexible_scrollable_table_view/flexible_scrollable_table_view.dart';
 import 'package:flutter/material.dart';
 import 'package:work_time/src/extensions/date_time_extension.dart';
@@ -105,11 +106,12 @@ class _HostPageState extends State<HostPage> {
         appBar: AppBar(
           centerTitle: true,
           //上一周
-          leading: ValueListenableBuilder<Week>(
-            valueListenable: showingWeek,
-            builder: (context, value, child) {
+          leading: TransformableListenableBuilder<Week, bool>(
+            source: showingWeek,
+            transformer: (sourceValue) => today.difference(sourceValue.focusDay).inDays <= (DateTime.daysPerWeek * 5),
+            builder: (context, enable, child) {
               //超过5周，则不再显示按钮
-              if (today.difference(value.focusDay).inDays > (DateTime.daysPerWeek * 5)) {
+              if (!enable) {
                 return const SizedBox.shrink();
               }
               return IconButton(
@@ -127,11 +129,12 @@ class _HostPageState extends State<HostPage> {
           ),
           actions: [
             //下一周
-            ValueListenableBuilder<Week>(
-              valueListenable: showingWeek,
-              builder: (context, value, child) {
+            TransformableListenableBuilder<Week, bool>(
+              source: showingWeek,
+              transformer: (sourceValue) => sourceValue.focusDay.difference(today).inDays <= (DateTime.daysPerWeek * 3),
+              builder: (context, enable, child) {
                 //超过3周，则不再显示按钮
-                if (value.focusDay.difference(today).inDays > (DateTime.daysPerWeek * 3)) {
+                if (!enable) {
                   return const SizedBox.shrink();
                 }
                 return IconButton(
@@ -148,11 +151,13 @@ class _HostPageState extends State<HostPage> {
               child: const Icon(Icons.arrow_forward_ios_rounded),
             ),
           ],
-          title: ValueListenableBuilder<Week>(
-            valueListenable: showingWeek,
-            builder: (context, value, child) => Text(
-              '${value.weekDays.first.toYMDString} ~ ${value.weekDays.last.toYMDString}',
-            ),
+          title: TransformableListenableBuilder<Week, String>(
+            source: showingWeek,
+            transformer: (sourceValue) => ''
+                '${sourceValue.weekDays.first.toYMDString}'
+                ' ~ '
+                '${sourceValue.weekDays.last.toYMDString}',
+            builder: (context, value, child) => Text(value),
           ),
         ),
         body: ScrollConfiguration(

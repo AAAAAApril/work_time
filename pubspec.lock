@@ -57,6 +57,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  extended_value_notifier:
+    dependency: "direct main"
+    description:
+      name: extended_value_notifier
+      sha256: "35ff094c029ab8127427a9dbaef1cfc7ffef3976d628749e745bb4fc1ca6e25d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   fake_async:
     dependency: transitive
     description:
@@ -85,10 +93,10 @@ packages:
     dependency: "direct main"
     description:
       name: flexible_scrollable_table_view
-      sha256: "06e97c9df0d936515e168f35ec70970fa40581cce9801610b785411c8db689d3"
+      sha256: "4f3ca0f3916330665af103847dd776b2097412575e648bb2ee900a20ae964ad4"
       url: "https://pub.dev"
     source: hosted
-    version: "2.8.1"
+    version: "2.10.0"
   flutter:
     dependency: "direct main"
     description: flutter
